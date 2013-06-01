@@ -28,7 +28,6 @@ class Range:
 
     # Invoke this for every value
     def track(self, value):
-        # YOUR CODE
         if self.min == None:
             self.min = value
             self.max = value
@@ -51,28 +50,28 @@ class Invariants:
 
     def track(self, frame, event, arg):
         if event == "call" or event == "return":
-            # YOUR CODE HERE.
-            # MAKE SURE TO TRACK ALL VARIABLES AND THEIR VALUES
-            # If the event is "return", the return value
-            # is kept in the 'arg' argument to this function.
-            # Use it to keep track of variable "ret" (return)
             fname = frame.f_code.co_name
 
             for vname, value in frame.f_locals.iteritems():
-                if fname in self.vars:
-                    if event != "return" and event in self.vars[fname]:
-                        if vname in self.vars[fname][event]:
-                            self.vars[fname][event][vname].track(value)
-                        else:
-                            self.vars[fname][event][vname] = Range()
-                            self.vars[fname][event][vname].track(value)
-                    else:
-                        self.vars[fname][event] = {vname: Range()}
-                        self.vars[fname][event][vname].track(value)
-                else:
+                if not (fname in self.vars):
                     self.vars[fname] = {event: {vname: Range()}}
-                    self.vars[fname][event][vname].track(value)
+                elif not (event in self.vars[fname]):
+                    self.vars[fname][event] = {vname: Range()}
+                elif not (vname in self.vars[fname][event]):
+                    self.vars[fname][event][vname] = Range()
 
+                self.vars[fname][event][vname].track(value)
+
+            if event == "return":
+                if not (fname in self.vars):
+                    self.vars[fname] = {event: {"ret": Range()}}
+                elif not (event in self.vars[fname]):
+                    self.vars[fname][event] = {"ret": Range()}
+                elif not("ret" in self.vars[fname][event]):
+                    self.vars[fname][event]["ret"] = Range()
+
+                self.vars[fname][event]["ret"].track(arg)
+                    
     def __repr__(self):
         # Return the tracked invariants
         s = ""
