@@ -29,6 +29,13 @@ class Range:
     # Invoke this for every value
     def track(self, value):
         # YOUR CODE
+        if self.min == None:
+            self.min = value
+            self.max = value
+        elif value < self.min:
+            self.min = value
+        elif value > self.max:
+            self.max = value
 
     def __repr__(self):
         return repr(self.min) + ".." + repr(self.max)
@@ -49,6 +56,20 @@ class Invariants:
             # If the event is "return", the return value
             # is kept in the 'arg' argument to this function.
             # Use it to keep track of variable "ret" (return)
+            fname = frame.f_code.co_name
+
+            for vname, value in frame.f_locals.iteritems():
+                if fname in self.vars:
+                    if event in self.vars[fname]:
+                        if vname in self.vars[fname][event]:
+                            self.vars[fname][event][vname].track(value)
+                        else:
+                            self.vars[fname][event][vname] = Range()
+                            self.vars[fname][event][vname].track(value)
+                    else:
+                        self.vars[fname][event] = {}
+                        # to be continued...
+
 
     def __repr__(self):
         # Return the tracked invariants
