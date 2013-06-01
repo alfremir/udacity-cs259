@@ -60,16 +60,18 @@ class Invariants:
 
             for vname, value in frame.f_locals.iteritems():
                 if fname in self.vars:
-                    if event in self.vars[fname]:
+                    if event != "return" and event in self.vars[fname]:
                         if vname in self.vars[fname][event]:
                             self.vars[fname][event][vname].track(value)
                         else:
                             self.vars[fname][event][vname] = Range()
                             self.vars[fname][event][vname].track(value)
                     else:
-                        self.vars[fname][event] = {}
-                        # to be continued...
-
+                        self.vars[fname][event] = {vname: Range()}
+                        self.vars[fname][event][vname].track(value)
+                else:
+                    self.vars[fname] = {event: {vname: Range()}}
+                    self.vars[fname][event][vname].track(value)
 
     def __repr__(self):
         # Return the tracked invariants
